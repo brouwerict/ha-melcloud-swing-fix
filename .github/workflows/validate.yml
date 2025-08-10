@@ -9,9 +9,22 @@ on:
 jobs:
   validate:
     runs-on: "ubuntu-latest"
+    name: Validate
     steps:
-      - uses: "actions/checkout@v3"
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
       - name: HACS validation
-        uses: "hacs/action@main"
+        uses: hacs/action@main
         with:
-          category: "integration"
+          category: integration
+          
+  hassfest:
+    runs-on: "ubuntu-latest"
+    name: Hassfest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Hassfest validation
+        uses: home-assistant/actions/hassfest@master
