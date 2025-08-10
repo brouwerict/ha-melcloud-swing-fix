@@ -281,30 +281,18 @@ class AtaDeviceClimate(MelCloudClimate):
 
     async def async_set_vane_vertical(self, position: str) -> None:
         """Set vertical vane position."""
-        # Log voor debugging
-        import logging
-        _LOGGER = logging.getLogger(__name__)
-        _LOGGER.warning(f"MELCloud trying to set vane_vertical to: {position}")
-        
         valid_positions = self._device.vane_vertical_positions or DEFAULT_VANE_POSITIONS
         if position not in valid_positions:
             raise ValueError(
                 f"Invalid vertical vane position {position}. Valid positions:"
                 f" {valid_positions}."
             )
-        
-        _LOGGER.warning(f"MELCloud sending to API: {ata.PROPERTY_VANE_VERTICAL}={position}")
         await self._device.set({ata.PROPERTY_VANE_VERTICAL: position})
 
     @property
     def swing_mode(self) -> str | None:
         """Return vertical vane position or mode."""
-        # Log de huidige waarde voor debugging
-        import logging
-        _LOGGER = logging.getLogger(__name__)
-        current_value = self._device.vane_vertical
-        _LOGGER.warning(f"MELCloud swing_mode current value: {current_value}, type: {type(current_value)}")
-        return current_value
+        return self._device.vane_vertical
 
     @property
     def swing_horizontal_mode(self) -> str | None:
@@ -325,11 +313,6 @@ class AtaDeviceClimate(MelCloudClimate):
         positions = self._device.vane_vertical_positions
         if not positions:
             if hasattr(self._device, 'vane_vertical') and self._device.vane_vertical is not None:
-                # Log voor debugging - wat geeft device terug?
-                import logging
-                _LOGGER = logging.getLogger(__name__)
-                _LOGGER.warning(f"MELCloud device vane_vertical value: {self._device.vane_vertical}, type: {type(self._device.vane_vertical)}")
-                _LOGGER.warning(f"MELCloud device vane_vertical_positions: {self._device.vane_vertical_positions}")
                 return DEFAULT_VANE_POSITIONS
             return None
         return positions
