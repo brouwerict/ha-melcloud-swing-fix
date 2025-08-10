@@ -14,7 +14,7 @@ This is a fixed version of the Home Assistant MELCloud integration that properly
 1. Open HACS
 2. Go to Integrations
 3. Click menu (3 dots top right) → Custom repositories
-4. Add: `https://github.com/[USERNAME]/ha-melcloud-swing-fix`
+4. Add: `https://github.com/brouwerict/ha-melcloud-swing-fix`
 5. Category: Integration
 6. Click Add
 7. Search for "MELCloud with Swing Fix"
