@@ -2,8 +2,5 @@
   "name": "MELCloud with Swing Fix",
   "render_readme": true,
   "domains": ["climate", "sensor", "water_heater"],
-  "country": ["NL", "BE", "EU"],
-  "homeassistant": "2024.1.0",
-  "zip_release": true,
-  "filename": "melcloud_fixed.zip"
+  "homeassistant": "2024.1.0"
 }
