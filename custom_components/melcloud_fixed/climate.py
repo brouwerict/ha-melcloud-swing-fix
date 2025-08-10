@@ -72,35 +72,10 @@ ATW_ZONE_HVAC_ACTION_LOOKUP = {
     atw.STATUS_DEFROST: HVACAction.PREHEATING,
 }
 
-# Default vane positions als fallback - numerieke waarden zoals MELCloud API verwacht
-DEFAULT_VANE_POSITIONS = ["0", "1", "2", "3", "4", "5", "7"]  # 0=auto, 1-5=positions, 7=swing
-DEFAULT_VANE_POSITIONS_HORIZONTAL = ["0", "1", "2", "3", "4", "5", "6", "7"]  # 0=auto, 1-5=positions, 6=split, 7=swing
-
-# Mapping voor gebruiksvriendelijke namen naar API waarden
-VANE_VERTICAL_MAPPING = {
-    "auto": "0",
-    "1": "1", 
-    "2": "2",
-    "3": "3", 
-    "4": "4",
-    "5": "5",
-    "swing": "7"
-}
-
-VANE_HORIZONTAL_MAPPING = {
-    "auto": "0",
-    "1": "1",
-    "2": "2", 
-    "3": "3",
-    "4": "4",
-    "5": "5",
-    "split": "6",
-    "swing": "7"
-}
-
-# Reverse mapping voor API waarden naar gebruiksvriendelijke namen
-VANE_VERTICAL_REVERSE = {v: k for k, v in VANE_VERTICAL_MAPPING.items()}
-VANE_HORIZONTAL_REVERSE = {v: k for k, v in VANE_HORIZONTAL_MAPPING.items()}
+# Default vane positions als fallback - aangepast gebaseerd op testresultaten
+# Positions 2,3,4 en swing werken, dus proberen we andere waarden voor auto,1,5
+DEFAULT_VANE_POSITIONS = ["0", "2", "3", "4", "5", "1", "7"]  # 0=auto, 7=swing, andere posities
+DEFAULT_VANE_POSITIONS_HORIZONTAL = ["0", "1", "2", "3", "4", "5", "6", "7"]
 
 
 async def async_setup_entry(
@@ -297,69 +272,33 @@ class AtaDeviceClimate(MelCloudClimate):
 
     async def async_set_vane_horizontal(self, position: str) -> None:
         """Set horizontal vane position."""
-        # Als we fallback gebruiken, converteer gebruiksvriendelijke naam naar API waarde
-        if not self._device.vane_horizontal_positions:
-            if position in VANE_HORIZONTAL_MAPPING:
-                api_position = VANE_HORIZONTAL_MAPPING[position]
-            else:
-                valid_names = list(VANE_HORIZONTAL_MAPPING.keys())
-                raise ValueError(
-                    f"Invalid horizontal vane position {position}. Valid positions:"
-                    f" {valid_names}."
-                )
-        else:
-            # Gebruik originele device posities
-            valid_positions = self._device.vane_horizontal_positions
-            if position not in valid_positions:
-                raise ValueError(
-                    f"Invalid horizontal vane position {position}. Valid positions:"
-                    f" {valid_positions}."
-                )
-            api_position = position
-            
-        await self._device.set({ata.PROPERTY_VANE_HORIZONTAL: api_position})
+        valid_positions = self._device.vane_horizontal_positions or DEFAULT_VANE_POSITIONS_HORIZONTAL
+        if position not in valid_positions:
+            raise ValueError(
+                f"Invalid horizontal vane position {position}. Valid positions:"
+                f" {valid_positions}."
+            )
+        await self._device.set({ata.PROPERTY_VANE_HORIZONTAL: position})
 
     async def async_set_vane_vertical(self, position: str) -> None:
         """Set vertical vane position."""
-        # Als we fallback gebruiken, converteer gebruiksvriendelijke naam naar API waarde
-        if not self._device.vane_vertical_positions:
-            if position in VANE_VERTICAL_MAPPING:
-                api_position = VANE_VERTICAL_MAPPING[position]
-            else:
-                valid_names = list(VANE_VERTICAL_MAPPING.keys())
-                raise ValueError(
-                    f"Invalid vertical vane position {position}. Valid positions:"
-                    f" {valid_names}."
-                )
-        else:
-            # Gebruik originele device posities
-            valid_positions = self._device.vane_vertical_positions
-            if position not in valid_positions:
-                raise ValueError(
-                    f"Invalid vertical vane position {position}. Valid positions:"
-                    f" {valid_positions}."
-                )
-            api_position = position
-            
-        await self._device.set({ata.PROPERTY_VANE_VERTICAL: api_position})
+        valid_positions = self._device.vane_vertical_positions or DEFAULT_VANE_POSITIONS
+        if position not in valid_positions:
+            raise ValueError(
+                f"Invalid vertical vane position {position}. Valid positions:"
+                f" {valid_positions}."
+            )
+        await self._device.set({ata.PROPERTY_VANE_VERTICAL: position})
 
     @property
     def swing_mode(self) -> str | None:
         """Return vertical vane position or mode."""
-        current_value = self._device.vane_vertical
-        # Als we fallback gebruiken, converteer API waarde naar gebruiksvriendelijke naam
-        if current_value and not self._device.vane_vertical_positions:
-            return VANE_VERTICAL_REVERSE.get(str(current_value), current_value)
-        return current_value
+        return self._device.vane_vertical
 
     @property
     def swing_horizontal_mode(self) -> str | None:
         """Return horizontal vane position or mode."""
-        current_value = self._device.vane_horizontal
-        # Als we fallback gebruiken, converteer API waarde naar gebruiksvriendelijke naam
-        if current_value and not self._device.vane_horizontal_positions:
-            return VANE_HORIZONTAL_REVERSE.get(str(current_value), current_value)
-        return current_value
+        return self._device.vane_horizontal
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         """Set vertical vane position or mode."""
@@ -375,8 +314,7 @@ class AtaDeviceClimate(MelCloudClimate):
         positions = self._device.vane_vertical_positions
         if not positions:
             if hasattr(self._device, 'vane_vertical') and self._device.vane_vertical is not None:
-                # Return gebruiksvriendelijke namen
-                return list(VANE_VERTICAL_MAPPING.keys())
+                return DEFAULT_VANE_POSITIONS
             return None
         return positions
 
@@ -386,8 +324,7 @@ class AtaDeviceClimate(MelCloudClimate):
         positions = self._device.vane_horizontal_positions
         if not positions:
             if hasattr(self._device, 'vane_horizontal') and self._device.vane_horizontal is not None:
-                # Return gebruiksvriendelijke namen
-                return list(VANE_HORIZONTAL_MAPPING.keys())
+                return DEFAULT_VANE_POSITIONS_HORIZONTAL
             return None
         return positions
 
