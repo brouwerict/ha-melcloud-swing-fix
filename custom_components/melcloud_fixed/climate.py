@@ -72,8 +72,8 @@ ATW_ZONE_HVAC_ACTION_LOOKUP = {
     atw.STATUS_DEFROST: HVACAction.PREHEATING,
 }
 
-# Default vane positions - probeer verschillende formats gebaseerd op andere implementaties
-DEFAULT_VANE_POSITIONS = ["auto", "position_1", "2", "3", "4", "position_5", "split", "swing"]
+# Default vane positions - echte waarden van jouw device gevonden!
+DEFAULT_VANE_POSITIONS = ["auto", "1_up", "2", "3", "4", "5_down", "swing"]
 DEFAULT_VANE_POSITIONS_HORIZONTAL = ["auto", "1_left", "2", "3", "4", "5_right", "split", "swing"]
 
 
