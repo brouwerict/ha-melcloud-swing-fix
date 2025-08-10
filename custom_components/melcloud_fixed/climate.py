@@ -72,10 +72,9 @@ ATW_ZONE_HVAC_ACTION_LOOKUP = {
     atw.STATUS_DEFROST: HVACAction.PREHEATING,
 }
 
-# Default vane positions als fallback - aangepast gebaseerd op testresultaten
-# Positions 2,3,4 en swing werken, dus proberen we andere waarden voor auto,1,5
-DEFAULT_VANE_POSITIONS = ["0", "2", "3", "4", "5", "1", "7"]  # 0=auto, 7=swing, andere posities
-DEFAULT_VANE_POSITIONS_HORIZONTAL = ["0", "1", "2", "3", "4", "5", "6", "7"]
+# Default vane positions - probeer verschillende formats gebaseerd op andere implementaties
+DEFAULT_VANE_POSITIONS = ["auto", "position_1", "2", "3", "4", "position_5", "split", "swing"]
+DEFAULT_VANE_POSITIONS_HORIZONTAL = ["auto", "1_left", "2", "3", "4", "5_right", "split", "swing"]
 
 
 async def async_setup_entry(
@@ -314,6 +313,11 @@ class AtaDeviceClimate(MelCloudClimate):
         positions = self._device.vane_vertical_positions
         if not positions:
             if hasattr(self._device, 'vane_vertical') and self._device.vane_vertical is not None:
+                # Log voor debugging - wat geeft device terug?
+                import logging
+                _LOGGER = logging.getLogger(__name__)
+                _LOGGER.warning(f"MELCloud device vane_vertical value: {self._device.vane_vertical}, type: {type(self._device.vane_vertical)}")
+                _LOGGER.warning(f"MELCloud device vane_vertical_positions: {self._device.vane_vertical_positions}")
                 return DEFAULT_VANE_POSITIONS
             return None
         return positions
