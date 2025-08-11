@@ -119,6 +119,7 @@ class MelCloudClimate(ClimateEntity):
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_has_entity_name = True
     _attr_name = None
+    _attr_icon = "mdi:air-conditioner"
 
     def __init__(self, device: MelCloudDevice) -> None:
         """Initialize the climate."""
