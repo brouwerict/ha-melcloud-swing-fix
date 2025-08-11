@@ -2,7 +2,6 @@
   "name": "MELCloud with Swing Fix",
   "content_in_root": false,
   "render_readme": true,
-  "domains": ["climate", "sensor", "water_heater"],
   "homeassistant": "2024.1.0",
   "iot_class": "Cloud Polling"
 }
