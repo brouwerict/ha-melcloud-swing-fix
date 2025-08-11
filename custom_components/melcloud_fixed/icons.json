@@ -1,4 +1,9 @@
 {
+  "entity_component": {
+    "_": {
+      "default": "mdi:air-conditioner"
+    }
+  },
   "entity": {
     "sensor": {
       "energy_consumed": {
