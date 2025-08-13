@@ -71,21 +71,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: MelCloudConfigEntry) -> 
 async def copy_icons(hass: HomeAssistant) -> None:
     """Copy icon files to www folder."""
     source_dir = Path(__file__).parent
-    dest_folder = Path(hass.config.path("www/community/melcloud_fixed"))
-    dest_folder.mkdir(parents=True, exist_ok=True)
+    
+    # Multiple destination folders for better compatibility
+    dest_folders = [
+        Path(hass.config.path("www/community/melcloud_fixed")),
+        Path(hass.config.path("www/icons/melcloud_fixed")),
+        Path(hass.config.path("custom_icons"))
+    ]
     
     # Lijst van icon bestanden
     icon_files = ["icon.png", "icon@2x.png"]
     
-    for icon_file in icon_files:
-        source_icon = source_dir / icon_file
-        if source_icon.exists():
-            dest_icon = dest_folder / icon_file
+    for dest_folder in dest_folders:
+        try:
+            dest_folder.mkdir(parents=True, exist_ok=True)
             
-            # Check of bestand anders is (nieuwe versie)
-            if not dest_icon.exists() or source_icon.stat().st_mtime > dest_icon.stat().st_mtime:
-                shutil.copy2(source_icon, dest_icon)
-                _LOGGER.info(f"Copied {icon_file} to www folder")
+            for icon_file in icon_files:
+                source_icon = source_dir / icon_file
+                if source_icon.exists():
+                    dest_icon = dest_folder / icon_file
+                    
+                    # Check of bestand anders is (nieuwe versie)
+                    if not dest_icon.exists() or source_icon.stat().st_mtime > dest_icon.stat().st_mtime:
+                        shutil.copy2(source_icon, dest_icon)
+                        _LOGGER.info(f"Copied {icon_file} to {dest_folder}")
+        except Exception as e:
+            _LOGGER.debug(f"Could not copy icons to {dest_folder}: {e}")
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
