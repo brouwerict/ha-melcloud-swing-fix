@@ -1,8 +1,6 @@
 {
-  "name": "MELCloud with Swing Fix",
-  "content_in_root": false,
-  "render_readme": true,
-  "homeassistant": "2024.1.0",
+  "name": "MELCloud with Swing Fix", 
+  "icon": "mdi:hvac",
   "domains": ["climate"],
-  "icon": "mdi:air-conditioner"
+  "homeassistant": "2024.1.0"
 }
