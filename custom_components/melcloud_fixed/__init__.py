@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from datetime import timedelta
+import json
 import logging
+import shutil
+from pathlib import Path
 from typing import Any
 
 from aiohttp import ClientConnectionError, ClientResponseError
@@ -32,6 +35,24 @@ type MelCloudConfigEntry = ConfigEntry[dict[str, list[MelCloudDevice]]]
 
 async def async_setup_entry(hass: HomeAssistant, entry: MelCloudConfigEntry) -> bool:
     """Establish connection with MELCloud."""
+    
+    # Haal huidige versie op
+    manifest_path = Path(__file__).parent / "manifest.json"
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+        current_version = manifest.get("version", "0.0.0")
+    
+    # Check opgeslagen versie
+    stored_version = hass.data.get(DOMAIN, {}).get("icon_version", "0.0.0")
+    
+    # Kopieer icons als versie nieuwer is of eerste keer
+    if current_version != stored_version:
+        await copy_icons(hass)
+        
+        # Sla versie op
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN]["icon_version"] = current_version
+    
     conf = entry.data
     try:
         mel_devices = await mel_devices_setup(hass, conf[CONF_TOKEN])
@@ -45,6 +66,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: MelCloudConfigEntry) -> 
     entry.runtime_data = mel_devices
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def copy_icons(hass: HomeAssistant) -> None:
+    """Copy icon files to www folder."""
+    source_dir = Path(__file__).parent
+    dest_folder = Path(hass.config.path("www/community/melcloud_fixed"))
+    dest_folder.mkdir(parents=True, exist_ok=True)
+    
+    # Lijst van icon bestanden
+    icon_files = ["icon.png", "icon@2x.png"]
+    
+    for icon_file in icon_files:
+        source_icon = source_dir / icon_file
+        if source_icon.exists():
+            dest_icon = dest_folder / icon_file
+            
+            # Check of bestand anders is (nieuwe versie)
+            if not dest_icon.exists() or source_icon.stat().st_mtime > dest_icon.stat().st_mtime:
+                shutil.copy2(source_icon, dest_icon)
+                _LOGGER.info(f"Copied {icon_file} to www folder")
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
