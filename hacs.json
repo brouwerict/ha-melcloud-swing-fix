@@ -1,6 +1,10 @@
 {
   "name": "MELCloud with Swing Fix",
-  "icon": "mdi:air-conditioner",
+  "icon": "mdi:hvac",
   "domains": ["climate"],
-  "homeassistant": "2024.1.0"
+  "homeassistant": "2024.1.0",
+  "brand": {
+    "name": "Mitsubishi Electric MELCloud",
+    "icon": "mdi:hvac"
+  }
 }
