@@ -1,9 +1,0 @@
-{
-  "domain": "melcloud_fixed",
-  "name": "MELCloud with Swing Fix",
-  "integrations": {
-    "melcloud_fixed": {
-      "name": "MELCloud with Swing Fix"
-    }
-  }
-}
