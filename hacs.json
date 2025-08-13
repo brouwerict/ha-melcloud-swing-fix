@@ -1,6 +1,5 @@
 {
-  "name": "MELCloud with Swing Fix", 
-  "icon": "mdi:hvac",
+  "name": "MELCloud with Swing Fix",
   "domains": ["climate"],
   "homeassistant": "2024.1.0"
 }
