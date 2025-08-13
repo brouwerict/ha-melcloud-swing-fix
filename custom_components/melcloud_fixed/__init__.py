@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
+from homeassistant.helpers.storage import Store
 from homeassistant.util import Throttle
 
 from .const import DOMAIN
@@ -48,6 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: MelCloudConfigEntry) -> 
     # Kopieer icons als versie nieuwer is of eerste keer
     if current_version != stored_version:
         await copy_icons(hass)
+        await register_frontend_resources(hass)
         
         # Sla versie op
         hass.data.setdefault(DOMAIN, {})
@@ -79,24 +81,49 @@ async def copy_icons(hass: HomeAssistant) -> None:
         Path(hass.config.path("custom_icons"))
     ]
     
-    # Lijst van icon bestanden
-    icon_files = ["icon.png", "icon@2x.png"]
+    # Lijst van icon bestanden en JavaScript bestanden
+    files_to_copy = ["icon.png", "icon@2x.png", "www/melcloud-brand-icons.js"]
     
     for dest_folder in dest_folders:
         try:
             dest_folder.mkdir(parents=True, exist_ok=True)
             
-            for icon_file in icon_files:
-                source_icon = source_dir / icon_file
-                if source_icon.exists():
-                    dest_icon = dest_folder / icon_file
+            for file_path in files_to_copy:
+                source_file = source_dir / file_path
+                if source_file.exists():
+                    if file_path.endswith('.js'):
+                        # JavaScript bestanden naar www root
+                        dest_file = Path(hass.config.path("www")) / source_file.name
+                    else:
+                        # Icon bestanden naar specifieke folders
+                        dest_file = dest_folder / source_file.name
                     
                     # Check of bestand anders is (nieuwe versie)
-                    if not dest_icon.exists() or source_icon.stat().st_mtime > dest_icon.stat().st_mtime:
-                        shutil.copy2(source_icon, dest_icon)
-                        _LOGGER.info(f"Copied {icon_file} to {dest_folder}")
+                    if not dest_file.exists() or source_file.stat().st_mtime > dest_file.stat().st_mtime:
+                        shutil.copy2(source_file, dest_file)
+                        _LOGGER.info(f"Copied {source_file.name} to {dest_file.parent}")
         except Exception as e:
-            _LOGGER.debug(f"Could not copy icons to {dest_folder}: {e}")
+            _LOGGER.debug(f"Could not copy files to {dest_folder}: {e}")
+
+
+async def register_frontend_resources(hass: HomeAssistant) -> None:
+    """Register frontend resources for custom icons."""
+    try:
+        # Registreer JavaScript module voor custom brand icons
+        hass.http.register_static_path(
+            "/local/melcloud-brand-icons.js",
+            hass.config.path("www/melcloud-brand-icons.js"),
+        )
+        
+        # Voeg toe aan frontend resources
+        if hasattr(hass.data, 'frontend') and hasattr(hass.data['frontend'], 'extra_module_url'):
+            if "/local/melcloud-brand-icons.js" not in hass.data['frontend'].extra_module_url:
+                hass.data['frontend'].extra_module_url.append("/local/melcloud-brand-icons.js")
+        
+        _LOGGER.info("MELCloud frontend resources registered")
+        
+    except Exception as e:
+        _LOGGER.debug(f"Could not register frontend resources: {e}")
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
