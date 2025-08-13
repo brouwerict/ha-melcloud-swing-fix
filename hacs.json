@@ -4,5 +4,5 @@
   "render_readme": true,
   "homeassistant": "2024.1.0",
   "domains": ["climate"],
-  "icon": "https://raw.githubusercontent.com/brouwerict/ha-melcloud-swing-fix/main/custom_components/melcloud_fixed/icon.png"
+  "icon": "mdi:air-conditioner"
 }
