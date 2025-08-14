@@ -1,5 +1,5 @@
 {
   "name": "MELCloud with Swing Fix",
-  "domain": "climate",
-  "homeassistant": "2024.1.0"
+  "homeassistant": "2024.1.0",
+  "render_readme": true
 }
