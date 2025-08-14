@@ -1,5 +1,5 @@
 {
   "name": "MELCloud with Swing Fix",
-  "domains": ["climate"],
+  "domain": "climate",
   "homeassistant": "2024.1.0"
 }
